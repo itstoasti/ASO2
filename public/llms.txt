@@ -1,0 +1,45 @@
+# ASO Keyword Research & Rank Tracker
+
+> A professional App Store Optimization (ASO) and Google Play Store Keyword Research & Rank Tracking platform built for iOS and Android growth teams.
+
+## AI Agent & LLM Capabilities
+
+This application is fully agentic-enabled via **Model Context Protocol (MCP)** and REST endpoints.
+
+### MCP (Model Context Protocol) Integration
+
+- **MCP Endpoint**: `POST /api/mcp` (JSON-RPC 2.0)
+- **Local CLI command**: `npm run mcp` (stdio transport for Claude Desktop & Cursor)
+
+#### Available MCP Tools
+
+1. `research_keywords`
+   - Performs keyword research across iOS App Store & Google Play Store.
+   - Calculates search popularity (5-100), estimated impressions, keyword difficulty (0-100), and opportunity score.
+   - Inputs: `seedKeyword` (string), `platform` (`"ios" | "android" | "both"`), `country` (e.g. `"us"`, `"gb"`).
+
+2. `check_app_rankings`
+   - Checks search rank position (1-50) for a specific app across multiple keywords.
+   - Inputs: `appId` (string), `keywords` (array of strings), `platform` (`"ios" | "android"`), `country` (string).
+
+3. `lookup_app_details`
+   - Resolves App Store numeric ID or Google Play package name to title, developer, ratings, and icon.
+   - Inputs: `appId` (string), `platform` (`"ios" | "android"`), `country` (string).
+
+4. `extract_app_keywords`
+   - Extracts seed keywords from app store URLs or developer websites.
+   - Inputs: `targetUrl` (string).
+
+---
+
+## REST Endpoints & Documentation
+
+- **OpenAPI 3.0 Specification**: `GET /api/openapi.json`
+- **Keyword Research API**: `POST /api/research`
+- **Rank Check API**: `POST /api/rank-check`
+- **App Lookup API**: `POST /api/app-lookup`
+- **Keyword Extractor API**: `POST /api/extract-keywords`
+
+## Architecture & Data Sources
+- **iOS Data**: Apple Search Ads (ASA) API + App Store Autocomplete & Ranking metrics.
+- **Android Data**: Google Play Store Autocomplete + Install Brackets & Demand Estimation scoring.
