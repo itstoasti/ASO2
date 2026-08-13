@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import { createAsoMcpServer } from '../lib/mcp/mcp-server';
 
 async function main() {
