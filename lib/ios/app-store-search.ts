@@ -22,10 +22,10 @@ export async function getIosSearchApps(
 
   const store = COUNTRIES.find((c) => c.code === country)?.storeCode || 'US';
   const query = encodeURIComponent(keyword.trim());
-  const url = `https://itunes.apple.com/search?term=${query}&country=${store}&entity=software&limit=200`;
+  const url = `https://itunes.apple.com/search?term=${query}&country=${store}&entity=software&limit=100`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s fast timeout
+  const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s reliable timeout
 
   try {
     const response = await fetch(url, {

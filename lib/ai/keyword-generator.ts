@@ -39,7 +39,8 @@ Output MUST be a valid JSON array of objects with keys: "keyword", "relevanceRea
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { responseMimeType: 'application/json' }
-        })
+        }),
+        signal: AbortSignal.timeout(2500),
       });
 
       if (res.ok) {
@@ -175,6 +176,45 @@ function generateDomainAsoKeywords(appName: string): AiKeywordSuggestion[] {
       { keyword: 'expense tracker free', relevanceReason: 'High intent expense logging', category: 'high_intent' },
       { keyword: 'money manager', relevanceReason: 'Top category query', category: 'category' },
       { keyword: 'monthly budget keeper', relevanceReason: 'Long tail intent', category: 'long_tail' }
+    );
+    return suggestions;
+  }
+
+  // Language Learning Apps
+  if (titleLower.includes('language') || titleLower.includes('spanish') || titleLower.includes('french') || titleLower.includes('lingo') || titleLower.includes('babbel') || titleLower.includes('speak') || titleLower.includes('learn') || titleLower.includes('english') || titleLower.includes('german') || titleLower.includes('japanese') || titleLower.includes('korean')) {
+    suggestions.push(
+      { keyword: 'language learning app', relevanceReason: 'Core category search query', category: 'category' },
+      { keyword: 'learn spanish free', relevanceReason: 'High intent: Free language lessons', category: 'high_intent' },
+      { keyword: 'language course app', relevanceReason: 'Core app capability: Structured courses', category: 'core_feature' },
+      { keyword: 'learn french app', relevanceReason: 'High intent: Popular language course', category: 'high_intent' },
+      { keyword: 'spanish lessons for beginners', relevanceReason: 'Long-tail beginner search query', category: 'long_tail' },
+      { keyword: 'speak another language', relevanceReason: 'High intent: Conversational fluency', category: 'high_intent' },
+      { keyword: 'language tutor app', relevanceReason: 'Core feature: AI or interactive tutor', category: 'core_feature' },
+      { keyword: 'daily language practice', relevanceReason: 'Long-tail habit-building query', category: 'long_tail' },
+      { keyword: 'learn english conversation', relevanceReason: 'High volume global search', category: 'category' },
+      { keyword: 'vocabulary builder app', relevanceReason: 'Core feature: Word retention', category: 'core_feature' },
+      { keyword: 'learn japanese kanji', relevanceReason: 'High intent: Asian language learning', category: 'long_tail' },
+      { keyword: 'fast language learning', relevanceReason: 'High intent: Rapid learning query', category: 'high_intent' }
+    );
+
+    const brandWord = appName.split(/[:\-\s]/)[0].toLowerCase().trim();
+    if (brandWord.length >= 3) {
+      suggestions.unshift(
+        { keyword: brandWord, relevanceReason: 'Exact brand query', category: 'core_feature' },
+        { keyword: `${brandWord} app`, relevanceReason: 'Brand app intent', category: 'high_intent' }
+      );
+    }
+    return suggestions;
+  }
+
+  // Habit / Productivity / Notes Apps
+  if (titleLower.includes('habit') || titleLower.includes('routine') || titleLower.includes('task') || titleLower.includes('todo') || titleLower.includes('journal') || titleLower.includes('note')) {
+    suggestions.push(
+      { keyword: 'habit tracker app', relevanceReason: 'Core category search', category: 'category' },
+      { keyword: 'daily routine planner', relevanceReason: 'High intent daily planning', category: 'high_intent' },
+      { keyword: 'to do list free', relevanceReason: 'Top category query', category: 'category' },
+      { keyword: 'task manager organizer', relevanceReason: 'Core app capability', category: 'core_feature' },
+      { keyword: 'daily habit log', relevanceReason: 'Long-tail tracking query', category: 'long_tail' }
     );
     return suggestions;
   }

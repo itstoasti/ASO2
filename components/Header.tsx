@@ -1,18 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
-import { Key, ShieldCheck, HelpCircle, BarChart2, Search, Target } from 'lucide-react';
-import { Badge } from './Badge';
+import { Search, Target, Swords } from 'lucide-react';
 
 interface HeaderProps {
   onOpenAsaModal?: () => void;
   asaConfigured?: boolean;
-  activeTab?: 'research' | 'tracker';
+  activeTab?: 'research' | 'tracker' | 'competitors';
   trackedCount?: number;
 }
 
 export function Header({
   activeTab = 'research',
-  trackedCount = 0,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 transition-all shadow-xs">
@@ -38,7 +36,7 @@ export function Header({
         <nav className="flex items-center justify-center p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700 text-xs font-bold shadow-xs">
           <Link
             href="/"
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'research'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -50,7 +48,7 @@ export function Header({
 
           <Link
             href="/rank-tracker"
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'tracker'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -58,6 +56,18 @@ export function Header({
           >
             <Target className="w-3.5 h-3.5" />
             <span className="whitespace-nowrap">Rank Tracker</span>
+          </Link>
+
+          <Link
+            href="/competitors"
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg transition-all ${
+              activeTab === 'competitors'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Swords className="w-3.5 h-3.5" />
+            <span className="whitespace-nowrap">Competitors</span>
           </Link>
         </nav>
 
@@ -68,4 +78,3 @@ export function Header({
     </header>
   );
 }
-

@@ -80,6 +80,8 @@ export async function getAndroidSearchApps(
       const titleMatches = Array.from(html.matchAll(/class="DdV5ec"><div class="v2bFdf[^"]*">([^<]+)<\/div>/g));
       const devMatches = Array.from(html.matchAll(/class="w8fizc">([^<]+)<\/span>/g));
       const ratingMatches = Array.from(html.matchAll(/aria-label="Rated ([0-9\.]+) stars out of/g));
+      const iconMatches = Array.from(html.matchAll(/(https:\/\/play-lh\.googleusercontent\.com\/[a-zA-Z0-9_=-]+)/g));
+      const rawIcons = iconMatches.map((m) => m[1]);
 
       const count = Math.max(pkgRankList.length, titleMatches.length);
 
@@ -96,6 +98,7 @@ export async function getAndroidSearchApps(
 
         const rawDev = devMatches[i]?.[1] || 'App Developer';
         const rating = ratingMatches[i]?.[1] ? parseFloat(ratingMatches[i][1]) : 4.3 + (i % 4) * 0.1;
+        const iconUrl = rawIcons[i] || '';
 
         const name = decodeHtmlEntities(rawName);
         const developer = decodeHtmlEntities(rawDev);
@@ -107,6 +110,7 @@ export async function getAndroidSearchApps(
           id: realPkgId,
           name,
           developer,
+          iconUrl,
           rating: Math.round(rating * 10) / 10,
           reviewCount,
           installs: installTier,
