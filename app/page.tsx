@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { CountryCode, AsaCredentials, Platform, ResearchResponse, KeywordResult } from '@/lib/types';
+import { CountryCode, Platform, ResearchResponse, KeywordResult } from '@/lib/types';
 import { Header } from '@/components/Header';
 import { SearchSection } from '@/components/SearchSection';
 import { SummaryCards } from '@/components/SummaryCards';
@@ -10,7 +10,6 @@ import { ResultsTable } from '@/components/ResultsTable';
 import { GridView } from '@/components/GridView';
 import { AsoCopyView } from '@/components/AsoCopyView';
 import { TopAppsDrawer } from '@/components/TopAppsDrawer';
-import { AsaConfigModal } from '@/components/AsaConfigModal';
 import { SkeletonTable } from '@/components/SkeletonTable';
 import { MobileNavBar } from '@/components/MobileNavBar';
 
@@ -21,10 +20,6 @@ export default function Home() {
   const [country, setCountry] = useState<CountryCode>('us');
   const [appUrl, setAppUrl] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
-
-  // Credentials State
-  const [asaCredentials, setAsaCredentials] = useState<AsaCredentials | null>(null);
-  const [isAsaModalOpen, setIsAsaModalOpen] = useState(false);
 
   // Response & Filtering State
   const [data, setData] = useState<ResearchResponse | null>(null);
@@ -48,71 +43,69 @@ export default function Home() {
 
   // Primary Research Function
   const executeResearch = useCallback(async () => {
-    if (!seedKeyword.trim() && !appUrl.trim() && !websiteUrl.trim()) return;
+    if (!seedKeyword.trim() && !appUrl.trim() && !websiteUrl.trim()) {
+      setError('Please provide a seed keyword, App Store / Play Store link, or website URL.');
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const res = await fetch('/api/research', {
+      const response = await fetch('/api/research', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           seedKeyword,
           platform,
           country,
           appUrl,
           websiteUrl,
-          asaCredentials,
         }),
       });
 
-      if (!res.ok) {
-        const errJson = await res.json();
-        throw new Error(errJson.error || 'Failed to analyze keywords.');
+      if (!response.ok) {
+        const errJson = await response.json();
+        throw new Error(errJson.error || 'Failed to complete keyword research.');
       }
 
-      const jsonPayload: ResearchResponse = await res.json();
-      setData(jsonPayload);
-
-      if (jsonPayload.seedKeyword && jsonPayload.seedKeyword !== seedKeyword) {
-        setSeedKeyword(jsonPayload.seedKeyword);
-      }
+      const resData: ResearchResponse = await response.json();
+      setData(resData);
     } catch (err: any) {
-      setError(err?.message || 'An error occurred during keyword research.');
+      console.error(err);
+      setError(err.message || 'An unexpected error occurred while researching keywords.');
     } finally {
       setIsLoading(false);
     }
-  }, [seedKeyword, platform, country, appUrl, websiteUrl, asaCredentials]);
+  }, [seedKeyword, platform, country, appUrl, websiteUrl]);
 
-  // Extract seed keywords from URL
-  const handleExtractKeywords = async () => {
-    const targetUrl = websiteUrl || appUrl;
-    if (!targetUrl) return;
-
+  // Extract Keywords Action
+  const handleExtractKeywords = async (url: string) => {
     setIsExtracting(true);
+    setError(null);
     try {
       const res = await fetch('/api/extract-keywords', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: targetUrl }),
+        body: JSON.stringify({ targetUrl: url }),
       });
 
       if (res.ok) {
-        const result = await res.json();
-        if (result.keywords && result.keywords.length > 0) {
-          setSeedKeyword(result.keywords[0]);
-          executeResearch();
+        const extracted = await res.json();
+        if (extracted.keywords && extracted.keywords.length > 0) {
+          setSeedKeyword(extracted.keywords[0]);
         }
       }
     } catch (err) {
-      console.error('Failed to extract keywords:', err);
+      console.error('Extract keywords error:', err);
     } finally {
       setIsExtracting(false);
     }
   };
 
-  // Reset all filters function
+  // Reset Filters Action
   const handleResetFilters = () => {
     setFilterQuery('');
     setPlatformFilter('all');
@@ -123,55 +116,46 @@ export default function Home() {
     setPresetFilter('none');
   };
 
-  // Multi-Combination Filter Execution
+  // Filter Pipeline
   const filteredResults = (data?.results || []).filter((item) => {
-    // 1. Preset filter overrides
-    if (presetFilter === 'indie_gems') {
-      if (item.difficulty > 35 || item.opportunityScore < 70) return false;
-    } else if (presetFilter === 'high_volume') {
-      // High volume threshold: Search Popularity >= 45 or demandLabel === 'High'
-      if (item.searchPopularity < 45 && item.demandLabel !== 'High') return false;
-    }
-
-    // 2. Text Search Query Filter
+    // 1. Text Query Filter
     if (filterQuery.trim()) {
       const q = filterQuery.toLowerCase().trim();
       if (!item.keyword.toLowerCase().includes(q)) return false;
     }
 
-    // 3. Platform Filter
+    // 2. Platform Filter
     if (platformFilter !== 'all') {
       if (item.platform !== platformFilter) return false;
     }
 
-    // 4. High Opportunity Checkbox
-    if (highOppOnly) {
-      if (item.opportunityScore < 70) return false;
+    // 3. High Opportunity Check
+    if (highOppOnly && item.opportunityScore < 60) return false;
+
+    // 4. Difficulty Filter
+    if (difficultyFilter !== 'all') {
+      if (difficultyFilter === 'easy' && item.difficulty > 35) return false;
+      if (difficultyFilter === 'moderate' && (item.difficulty <= 35 || item.difficulty > 65)) return false;
+      if (difficultyFilter === 'hard' && item.difficulty <= 65) return false;
     }
 
-    // 5. Difficulty Level Filter
-    if (difficultyFilter === 'easy') {
-      if (item.difficulty > 35) return false;
-    } else if (difficultyFilter === 'moderate') {
-      if (item.difficulty <= 35 || item.difficulty > 65) return false;
-    } else if (difficultyFilter === 'hard') {
-      if (item.difficulty <= 65) return false;
+    // 5. Demand Filter
+    if (demandFilter !== 'all') {
+      if (demandFilter === 'low' && item.searchPopularity >= 30) return false;
+      if (demandFilter === 'medium' && (item.searchPopularity < 30 || item.searchPopularity > 60)) return false;
+      if (demandFilter === 'high' && item.searchPopularity <= 60) return false;
     }
 
-    // 6. Search Volume / Demand Filter
-    if (demandFilter === 'high') {
-      if (item.searchPopularity < 45 && item.demandLabel !== 'High') return false;
-    } else if (demandFilter === 'medium') {
-      if (item.searchPopularity < 25 || item.searchPopularity >= 45) return false;
-    } else if (demandFilter === 'low') {
-      if (item.searchPopularity >= 25) return false;
+    // 6. Relevance Filter
+    if (relevanceFilter !== 'all') {
+      if (item.relevance.toLowerCase() !== relevanceFilter) return false;
     }
 
-    // 7. Relevance Filter
-    if (relevanceFilter === 'high') {
-      if (item.relevance !== 'High') return false;
-    } else if (relevanceFilter === 'medium') {
-      if (item.relevance === 'Low') return false;
+    // 7. Preset Filter
+    if (presetFilter === 'indie_gems') {
+      if (item.difficulty > 45 || item.opportunityScore < 60) return false;
+    } else if (presetFilter === 'high_volume') {
+      if (item.searchPopularity < 50) return false;
     }
 
     return true;
@@ -180,25 +164,15 @@ export default function Home() {
   const searchSectionRef = useRef<HTMLDivElement>(null);
 
   const scrollToSearch = () => {
-    searchSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (searchSectionRef.current) {
+      searchSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
-
-  const hasActiveFilters =
-    filterQuery.trim() !== '' ||
-    platformFilter !== 'all' ||
-    highOppOnly ||
-    difficultyFilter !== 'all' ||
-    demandFilter !== 'all' ||
-    relevanceFilter !== 'all' ||
-    presetFilter !== 'none';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-20 sm:pb-0">
       {/* Header Navigation */}
-      <Header
-        onOpenAsaModal={() => setIsAsaModalOpen(true)}
-        asaConfigured={data?.asaStatus.authenticated || !!asaCredentials}
-      />
+      <Header activeTab="research" />
 
       {/* Main Content Area */}
       <main className="flex-1 pb-16">
@@ -217,7 +191,7 @@ export default function Home() {
             setWebsiteUrl={setWebsiteUrl}
             onSearch={executeResearch}
             isLoading={isLoading}
-            onExtractKeywords={handleExtractKeywords}
+            onExtractKeywords={() => handleExtractKeywords(appUrl || websiteUrl)}
             isExtracting={isExtracting}
           />
         </div>
@@ -229,7 +203,7 @@ export default function Home() {
               <span>{error}</span>
               <button
                 onClick={() => setError(null)}
-                className="font-bold underline ml-4 hover:no-underline"
+                className="font-bold underline ml-4 hover:no-underline cursor-pointer"
               >
                 Dismiss
               </button>
@@ -294,18 +268,8 @@ export default function Home() {
         ) : null}
       </main>
 
-      {/* Mobile App Dock / Navigation Bar */}
-      <MobileNavBar
-        viewMode={viewMode}
-        onViewChange={(mode) => setViewMode(mode)}
-        onToggleFilters={() => {
-          window.scrollTo({ top: 300, behavior: 'smooth' });
-        }}
-        hasActiveFilters={hasActiveFilters}
-        onOpenAsaModal={() => setIsAsaModalOpen(true)}
-        asaConfigured={data?.asaStatus.authenticated || !!asaCredentials}
-        onScrollToSearch={scrollToSearch}
-      />
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileNavBar activeTab="research" />
 
       {/* Footer */}
       <footer className="w-full border-t border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 py-6 text-center text-xs text-slate-500 mb-14 sm:mb-0">
@@ -318,17 +282,6 @@ export default function Home() {
       <TopAppsDrawer
         keywordResult={selectedKeywordResult}
         onClose={() => setSelectedKeywordResult(null)}
-      />
-
-      {/* Apple Search Ads Credentials Modal */}
-      <AsaConfigModal
-        isOpen={isAsaModalOpen}
-        onClose={() => setIsAsaModalOpen(false)}
-        initialCredentials={asaCredentials}
-        onSaveCredentials={(creds) => {
-          setAsaCredentials(creds);
-          executeResearch();
-        }}
       />
     </div>
   );

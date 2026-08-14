@@ -3,10 +3,7 @@ import Link from 'next/link';
 import { Search, Target, Swords } from 'lucide-react';
 
 interface HeaderProps {
-  onOpenAsaModal?: () => void;
-  asaConfigured?: boolean;
   activeTab?: 'research' | 'tracker' | 'competitors';
-  trackedCount?: number;
 }
 
 export function Header({
