@@ -117,6 +117,59 @@ export async function GET() {
           },
         },
       },
+      '/api/discover-competitors': {
+        get: {
+          summary: 'Discover Competitor Apps',
+          parameters: [
+            { name: 'keyword', in: 'query', required: true, schema: { type: 'string' } },
+            { name: 'platform', in: 'query', schema: { type: 'string', enum: ['ios', 'android'], default: 'ios' } },
+            { name: 'country', in: 'query', schema: { type: 'string', default: 'us' } },
+          ],
+          responses: {
+            '200': { description: 'List of top competing apps for the given keyword or topic.' },
+          },
+        },
+      },
+      '/api/competitor-keywords': {
+        get: {
+          summary: 'Get Competitor Ranked Keywords',
+          parameters: [
+            { name: 'appId', in: 'query', required: true, schema: { type: 'string' } },
+            { name: 'appName', in: 'query', schema: { type: 'string' } },
+            { name: 'platform', in: 'query', schema: { type: 'string', enum: ['ios', 'android'], default: 'ios' } },
+          ],
+          responses: {
+            '200': { description: 'Top 50 ranked keywords with search volume, impressions, and difficulty.' },
+          },
+        },
+      },
+      '/api/competitor-matrix': {
+        get: {
+          summary: 'Competitor Keyword Comparison Matrix',
+          parameters: [
+            { name: 'myAppId', in: 'query', required: true, schema: { type: 'string' } },
+            { name: 'competitors', in: 'query', required: true, schema: { type: 'string' } },
+            { name: 'platform', in: 'query', schema: { type: 'string', enum: ['ios', 'android'], default: 'ios' } },
+          ],
+          responses: {
+            '200': { description: 'Side-by-side keyword overlap matrix, shared rankings, and missed keyword opportunities.' },
+          },
+        },
+      },
+      '/api/competitor-reviews': {
+        get: {
+          summary: 'Competitor Reviews & Sentiment Analysis',
+          parameters: [
+            { name: 'appId', in: 'query', required: true, schema: { type: 'string' } },
+            { name: 'appName', in: 'query', schema: { type: 'string' } },
+            { name: 'category', in: 'query', schema: { type: 'string' } },
+            { name: 'platform', in: 'query', schema: { type: 'string', enum: ['ios', 'android'], default: 'ios' } },
+          ],
+          responses: {
+            '200': { description: 'Executive sentiment breakdown, Top 3 reported issues, star distribution, and opportunity analysis.' },
+          },
+        },
+      },
     },
   };
 

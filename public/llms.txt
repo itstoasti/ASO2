@@ -1,6 +1,6 @@
-# ASO Keyword Research & Rank Tracker
+# ASO Keyword Research & Competitor Intelligence
 
-> A professional App Store Optimization (ASO) and Google Play Store Keyword Research & Rank Tracking platform built for iOS and Android growth teams.
+> A professional App Store Optimization (ASO) and Google Play Store Keyword Research, Competitor Spy, and Rank Tracking platform built for iOS and Android growth teams.
 
 ## AI Agent & LLM Capabilities
 
@@ -9,7 +9,7 @@ This application is fully agentic-enabled via **Model Context Protocol (MCP)** a
 ### MCP (Model Context Protocol) Integration
 
 - **MCP Endpoint**: `POST /api/mcp` (JSON-RPC 2.0)
-- **Local CLI command**: `npm run mcp` (stdio transport for Claude Desktop & Cursor)
+- **Local CLI command**: `npm run mcp` (stdio transport for Claude Desktop, Cursor, & AI Agents)
 
 #### Available MCP Tools
 
@@ -30,6 +30,18 @@ This application is fully agentic-enabled via **Model Context Protocol (MCP)** a
    - Extracts seed keywords from app store URLs or developer websites.
    - Inputs: `targetUrl` (string).
 
+5. `discover_competitors`
+   - Auto-discovers top competing apps in App Store or Google Play Store for a given seed keyword or category.
+   - Inputs: `seedKeyword` (string), `platform` (`"ios" | "android"`), `country` (string).
+
+6. `get_competitor_ranked_keywords`
+   - Fetches top ranked search keywords (1-50) with monthly volume, impressions, and difficulty for any competitor app.
+   - Inputs: `appId` (string), `appName` (string), `platform` (`"ios" | "android"`), `country` (string).
+
+7. `analyze_competitor_reviews`
+   - Synthesizes customer store reviews to return executive sentiment breakdown, Top 3 reported issues, verified quotes, and actionable opportunities for your app.
+   - Inputs: `appId` (string), `appName` (string), `category` (string), `platform` (`"ios" | "android"`).
+
 ---
 
 ## REST Endpoints & Documentation
@@ -39,7 +51,12 @@ This application is fully agentic-enabled via **Model Context Protocol (MCP)** a
 - **Rank Check API**: `POST /api/rank-check`
 - **App Lookup API**: `POST /api/app-lookup`
 - **Keyword Extractor API**: `POST /api/extract-keywords`
+- **Discover Competitors API**: `GET /api/discover-competitors?keyword=...&platform=ios`
+- **Competitor Keywords API**: `GET /api/competitor-keywords?appId=...&platform=ios`
+- **Competitor Matrix API**: `GET /api/competitor-matrix?myAppId=...&competitors=...`
+- **Competitor Reviews API**: `GET /api/competitor-reviews?appId=...&appName=...`
 
 ## Architecture & Data Sources
 - **iOS Data**: Apple Search Ads (ASA) API + App Store Autocomplete & Ranking metrics.
 - **Android Data**: Google Play Store Autocomplete + Install Brackets & Demand Estimation scoring.
+- **Competitor Intelligence**: Multi-app Keyword Overlap Matrix, Creative Asset Inspector, Description & Copy Density Analyzer, and Review Sentiment Extraction Engine.

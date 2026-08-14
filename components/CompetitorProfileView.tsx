@@ -292,10 +292,10 @@ export function CompetitorProfileView({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 border-b border-slate-100 dark:border-slate-800 mt-4 pt-1">
+        <div className="flex items-center gap-1 border-b border-slate-100 dark:border-slate-800 mt-4 pt-1 overflow-x-auto scrollbar-none whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveTab('keywords')}
-            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'keywords'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -310,7 +310,7 @@ export function CompetitorProfileView({
 
           <button
             onClick={() => setActiveTab('creatives')}
-            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'creatives'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -325,7 +325,7 @@ export function CompetitorProfileView({
 
           <button
             onClick={() => setActiveTab('copy')}
-            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'copy'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -337,7 +337,7 @@ export function CompetitorProfileView({
 
           <button
             onClick={() => setActiveTab('reviews')}
-            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'reviews'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -349,7 +349,7 @@ export function CompetitorProfileView({
 
           <button
             onClick={() => setActiveTab('compare')}
-            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'compare'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -690,172 +690,176 @@ export function CompetitorProfileView({
 
         return (
           <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xs">
-            {/* Unified Header Row */}
-            <div className="grid grid-cols-10 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-              <div className="col-span-2 p-4 flex flex-col justify-center border-r border-slate-200/80 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  Metrics
-                </span>
-                <span className="text-[11px] text-slate-500 mt-0.5">
-                  Head-to-head ASO
-                </span>
-              </div>
-
-              {/* Your App Header Cell */}
-              <div className="col-span-4 p-4 border-r border-slate-200/80 dark:border-slate-800 bg-blue-50/40 dark:bg-blue-950/20 flex items-center gap-3">
-                {fullTargetApp.iconUrl ? (
-                  <img
-                    src={fullTargetApp.iconUrl}
-                    alt={fullTargetApp.name}
-                    referrerPolicy="no-referrer"
-                    className="w-10 h-10 rounded-xl object-cover border border-blue-200/80 dark:border-blue-800/80 shadow-2xs shrink-0"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
-                    {fullTargetApp.name.slice(0, 2).toUpperCase()}
+            <div className="overflow-x-auto min-w-full">
+              <div className="min-w-[620px]">
+                {/* Unified Header Row */}
+                <div className="grid grid-cols-10 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                  <div className="col-span-2 p-4 flex flex-col justify-center border-r border-slate-200/80 dark:border-slate-800">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Metrics
+                    </span>
+                    <span className="text-[11px] text-slate-500 mt-0.5">
+                      Head-to-head ASO
+                    </span>
                   </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <span className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase tracking-wider">
-                    Your App
-                  </span>
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate mt-0.5" title={fullTargetApp.name}>
-                    {fullTargetApp.name}
-                  </h4>
-                  <p className="text-[10px] text-slate-500 truncate">
-                    by {fullTargetApp.developer}
-                  </p>
-                </div>
-              </div>
 
-              {/* Competitor Header Cell */}
-              <div className="col-span-4 p-4 bg-slate-50/70 dark:bg-slate-800/40 flex items-center gap-3">
-                {competitor.iconUrl ? (
-                  <img
-                    src={competitor.iconUrl}
-                    alt={competitor.name}
-                    referrerPolicy="no-referrer"
-                    className="w-10 h-10 rounded-xl object-cover border border-slate-200/80 dark:border-slate-700/80 shadow-2xs shrink-0"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-slate-700 text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
-                    {competitor.name.slice(0, 2).toUpperCase()}
+                  {/* Your App Header Cell */}
+                  <div className="col-span-4 p-4 border-r border-slate-200/80 dark:border-slate-800 bg-blue-50/40 dark:bg-blue-950/20 flex items-center gap-3">
+                    {fullTargetApp.iconUrl ? (
+                      <img
+                        src={fullTargetApp.iconUrl}
+                        alt={fullTargetApp.name}
+                        referrerPolicy="no-referrer"
+                        className="w-10 h-10 rounded-xl object-cover border border-blue-200/80 dark:border-blue-800/80 shadow-2xs shrink-0"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
+                        {fullTargetApp.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <span className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase tracking-wider">
+                        Your App
+                      </span>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate mt-0.5" title={fullTargetApp.name}>
+                        {fullTargetApp.name}
+                      </h4>
+                      <p className="text-[10px] text-slate-500 truncate">
+                        by {fullTargetApp.developer}
+                      </p>
+                    </div>
                   </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <span className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider">
-                    Competitor
-                  </span>
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate mt-0.5" title={competitor.name}>
-                    {competitor.name}
-                  </h4>
-                  <p className="text-[10px] text-slate-500 truncate">
-                    by {competitor.developer}
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* Metric Comparison Rows */}
-            <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              {/* Store Rating */}
-              <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                  Store Rating
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center gap-2">
-                  <span>★ {targetRating.toFixed(1)} / 5.0</span>
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span>{competitor.rating ? `★ ${competitor.rating.toFixed(1)} / 5.0` : 'N/A'}</span>
-                </div>
-              </div>
-
-              {/* Total User Reviews */}
-              <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                  Total Reviews
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
-                  {targetReviews.toLocaleString()}
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
-                  {competitor.reviewCount ? competitor.reviewCount.toLocaleString() : 'N/A'}
-                </div>
-              </div>
-
-              {/* Description Character Count */}
-              <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                  Description Length
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
-                  {(fullTargetApp.description || '').length > 0
-                    ? `${(fullTargetApp.description || '').length.toLocaleString()} / 4,000 chars (${Math.round(((fullTargetApp.description || '').length / 4000) * 100)}%)`
-                    : `2,827 / 4,000 chars (71%)`}
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
-                  {descCharCount.toLocaleString()} / 4,000 chars ({Math.round((descCharCount / 4000) * 100)}%)
-                </div>
-              </div>
-
-              {/* Description Word Count */}
-              <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                  Word Count
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
-                  {fullTargetApp.description
-                    ? `${fullTargetApp.description.trim().split(/\s+/).filter(Boolean).length} words`
-                    : '443 words'}
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
-                  {copyAnalysis.wordCount} words
-                </div>
-              </div>
-
-              {/* Screenshots Count */}
-              <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                  Screenshots
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
-                  {(fullTargetApp.screenshots && fullTargetApp.screenshots.length > 0)
-                    ? `${fullTargetApp.screenshots.length} screenshots`
-                    : '8 screenshots'}
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
-                  {screenshots.length} screenshots
-                </div>
-              </div>
-
-              {/* Category */}
-              <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                  Category
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
-                  {targetCategory}
-                </div>
-                <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
-                  {competitor.category || 'Food & Drink'}
-                </div>
-              </div>
-
-              {/* Estimated Installs */}
-              {competitor.platform === 'android' && (
-                <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                  <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
-                    Downloads
-                  </div>
-                  <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
-                    {targetInstalls}
-                  </div>
-                  <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
-                    {competitor.installs || '100K+'}
+                  {/* Competitor Header Cell */}
+                  <div className="col-span-4 p-4 bg-slate-50/70 dark:bg-slate-800/40 flex items-center gap-3">
+                    {competitor.iconUrl ? (
+                      <img
+                        src={competitor.iconUrl}
+                        alt={competitor.name}
+                        referrerPolicy="no-referrer"
+                        className="w-10 h-10 rounded-xl object-cover border border-slate-200/80 dark:border-slate-700/80 shadow-2xs shrink-0"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-slate-700 text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
+                        {competitor.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <span className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider">
+                        Competitor
+                      </span>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate mt-0.5" title={competitor.name}>
+                        {competitor.name}
+                      </h4>
+                      <p className="text-[10px] text-slate-500 truncate">
+                        by {competitor.developer}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              )}
+
+                {/* Metric Comparison Rows */}
+                <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                  {/* Store Rating */}
+                  <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                      Store Rating
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center gap-2">
+                      <span>★ {targetRating.toFixed(1)} / 5.0</span>
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <span>{competitor.rating ? `★ ${competitor.rating.toFixed(1)} / 5.0` : 'N/A'}</span>
+                    </div>
+                  </div>
+
+                  {/* Total User Reviews */}
+                  <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                      Total Reviews
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
+                      {targetReviews.toLocaleString()}
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
+                      {competitor.reviewCount ? competitor.reviewCount.toLocaleString() : 'N/A'}
+                    </div>
+                  </div>
+
+                  {/* Description Character Count */}
+                  <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                      Description Length
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
+                      {(fullTargetApp.description || '').length > 0
+                        ? `${(fullTargetApp.description || '').length.toLocaleString()} / 4,000 chars (${Math.round(((fullTargetApp.description || '').length / 4000) * 100)}%)`
+                        : `2,827 / 4,000 chars (71%)`}
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
+                      {descCharCount.toLocaleString()} / 4,000 chars ({Math.round((descCharCount / 4000) * 100)}%)
+                    </div>
+                  </div>
+
+                  {/* Description Word Count */}
+                  <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                      Word Count
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
+                      {fullTargetApp.description
+                        ? `${fullTargetApp.description.trim().split(/\s+/).filter(Boolean).length} words`
+                        : '443 words'}
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
+                      {copyAnalysis.wordCount} words
+                    </div>
+                  </div>
+
+                  {/* Screenshots Count */}
+                  <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                      Screenshots
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
+                      {(fullTargetApp.screenshots && fullTargetApp.screenshots.length > 0)
+                        ? `${fullTargetApp.screenshots.length} screenshots`
+                        : '8 screenshots'}
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
+                      {screenshots.length} screenshots
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                      Category
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
+                      {targetCategory}
+                    </div>
+                    <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
+                      {competitor.category || 'Food & Drink'}
+                    </div>
+                  </div>
+
+                  {/* Estimated Installs */}
+                  {competitor.platform === 'android' && (
+                    <div className="grid grid-cols-10 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                      <div className="col-span-2 p-3.5 pl-4 font-medium text-slate-600 dark:text-slate-400 border-r border-slate-100 dark:border-slate-800 flex items-center">
+                        Downloads
+                      </div>
+                      <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800 bg-blue-50/20 dark:bg-blue-950/10 flex items-center">
+                        {targetInstalls}
+                      </div>
+                      <div className="col-span-4 p-3.5 font-bold text-slate-900 dark:text-white flex items-center">
+                        {competitor.installs || '100K+'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         );

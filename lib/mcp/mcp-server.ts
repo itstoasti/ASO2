@@ -8,6 +8,9 @@ import {
   executeRankCheck,
   executeAppLookup,
   executeExtractKeywords,
+  executeDiscoverCompetitors,
+  executeGetCompetitorKeywords,
+  executeAnalyzeCompetitorReviews,
 } from './aso-tools';
 
 /**
@@ -129,6 +132,86 @@ export function createAsoMcpServer() {
             required: ['targetUrl'],
           },
         },
+        {
+          name: 'discover_competitors',
+          description:
+            'Auto-discovers top competing apps in App Store or Google Play Store for a given seed keyword or category.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              seedKeyword: {
+                type: 'string',
+                description: 'Seed keyword or topic to search competitors for (e.g. "recipe keeper", "workout log")',
+              },
+              platform: {
+                type: 'string',
+                enum: ['ios', 'android'],
+                description: 'Target store platform ("ios" or "android"). Defaults to "ios".',
+              },
+              country: {
+                type: 'string',
+                description: 'Country code (e.g. "us"). Defaults to "us".',
+              },
+            },
+            required: ['seedKeyword'],
+          },
+        },
+        {
+          name: 'get_competitor_ranked_keywords',
+          description:
+            'Fetches top ranked search keywords for a competitor app including rank position (1-50), search volume, impressions, and difficulty.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              appId: {
+                type: 'string',
+                description: 'Competitor App ID or package identifier.',
+              },
+              appName: {
+                type: 'string',
+                description: 'Competitor app name.',
+              },
+              platform: {
+                type: 'string',
+                enum: ['ios', 'android'],
+                description: 'Target platform ("ios" or "android"). Defaults to "ios".',
+              },
+              country: {
+                type: 'string',
+                description: 'Country code (e.g. "us"). Defaults to "us".',
+              },
+            },
+            required: ['appId'],
+          },
+        },
+        {
+          name: 'analyze_competitor_reviews',
+          description:
+            'Analyzes competitor store customer reviews to extract executive sentiment breakdown, Top 3 reported issues, and specific opportunities for your app.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              appId: {
+                type: 'string',
+                description: 'Competitor App ID or package name.',
+              },
+              appName: {
+                type: 'string',
+                description: 'Competitor app name.',
+              },
+              category: {
+                type: 'string',
+                description: 'App category (e.g. "Food & Drink", "Health & Fitness", "Finance").',
+              },
+              platform: {
+                type: 'string',
+                enum: ['ios', 'android'],
+                description: 'Target platform ("ios" or "android"). Defaults to "ios".',
+              },
+            },
+            required: ['appId'],
+          },
+        },
       ],
     };
   });
@@ -176,6 +259,42 @@ export function createAsoMcpServer() {
 
       if (name === 'extract_app_keywords') {
         const result = await executeExtractKeywords(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      if (name === 'discover_competitors') {
+        const result = await executeDiscoverCompetitors(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      if (name === 'get_competitor_ranked_keywords') {
+        const result = await executeGetCompetitorKeywords(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      if (name === 'analyze_competitor_reviews') {
+        const result = await executeAnalyzeCompetitorReviews(args as any);
         return {
           content: [
             {
