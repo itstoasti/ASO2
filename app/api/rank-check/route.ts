@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIosSearchApps } from '@/lib/ios/app-store-search';
 import { getAndroidSearchApps } from '@/lib/android/play-store-search';
-import { estimateIosPopularityFallback } from '@/lib/ios/search-ads-api';
+import { getOfficialAsaPopularity } from '@/lib/ios/search-ads-api';
 import { calculateKeywordDifficulty } from '@/lib/scoring/difficulty';
 import { CountryCode, Platform } from '@/lib/types';
 import { RankCheckResult } from '@/lib/rank-tracker-types';
@@ -21,6 +21,16 @@ export async function POST(req: NextRequest) {
     const cleanAppId = (appId || '').toLowerCase().trim();
     const results: RankCheckResult[] = [];
 
+    // Pre-fetch Apple search popularity in batch if platform is iOS
+    let iosAsaMap = new Map<string, { popularity: number; isOfficial: boolean }>();
+    if (platform !== 'android') {
+      try {
+        iosAsaMap = await getOfficialAsaPopularity(keywords, null, country as string);
+      } catch (err) {
+        // fallback handles per-keyword
+      }
+    }
+
     for (const kw of keywords) {
       const cleanKeyword = kw.trim();
       if (!cleanKeyword) continue;
@@ -38,7 +48,8 @@ export async function POST(req: NextRequest) {
         const res = await getIosSearchApps(cleanKeyword, country as CountryCode);
         apps = res.apps;
         totalResults = res.totalResults;
-        searchPopularity = estimateIosPopularityFallback(cleanKeyword);
+        const popData = iosAsaMap.get(cleanKeyword.toLowerCase());
+        searchPopularity = popData ? popData.popularity : 30;
       }
 
       // Calculate rank position (1-50)

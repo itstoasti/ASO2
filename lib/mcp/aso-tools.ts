@@ -74,7 +74,7 @@ export async function executeKeywordResearch(input: ResearchToolInput) {
       aiExpansions.forEach((a) => combinedSet.add(a.keyword.toLowerCase().trim()));
 
       const targetList = Array.from(combinedSet).slice(0, 15);
-      const asaMap = await getOfficialAsaPopularity(targetList, null);
+      const asaMap = await getOfficialAsaPopularity(targetList, null, country);
       const iosSearchResults = await Promise.all(targetList.map((kw) => getIosSearchApps(kw, country)));
 
       return targetList.map((kw, idx) => {
@@ -184,6 +184,15 @@ export async function executeRankCheck(input: RankCheckToolInput) {
   const cleanAppId = appId.toLowerCase().trim();
   const rankResults: any[] = [];
 
+  let iosAsaMap = new Map<string, { popularity: number; isOfficial: boolean }>();
+  if (platform !== 'android') {
+    try {
+      iosAsaMap = await getOfficialAsaPopularity(keywords, null, country);
+    } catch (e) {
+      // fallback
+    }
+  }
+
   for (const kw of keywords) {
     const cleanKw = kw.trim();
     if (!cleanKw) continue;
@@ -201,7 +210,8 @@ export async function executeRankCheck(input: RankCheckToolInput) {
       const res = await getIosSearchApps(cleanKw, country);
       apps = res.apps;
       totalResults = res.totalResults;
-      searchPopularity = estimateIosPopularityFallback(cleanKw);
+      const popData = iosAsaMap.get(cleanKw.toLowerCase());
+      searchPopularity = popData ? popData.popularity : 30;
     }
 
     let foundRank: number | null = null;

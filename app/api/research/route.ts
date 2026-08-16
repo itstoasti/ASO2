@@ -129,12 +129,12 @@ export async function POST(req: NextRequest) {
 
         const targetList = Array.from(combinedSet).slice(0, 18);
 
-        const asaMap = await getOfficialAsaPopularity(targetList, credentials);
+        const asaMap = await getOfficialAsaPopularity(targetList, credentials, country);
         const firstItem = asaMap.values().next().value;
         if (firstItem && firstItem.isOfficial) {
           asaConfigured = true;
           asaAuthenticated = true;
-          asaMessage = 'Connected to official Apple Search Ads API';
+          asaMessage = 'Connected to official Apple Ads Platform API';
         }
 
         const iosSearchResults = await Promise.all(targetList.map((kw) => getIosSearchApps(kw, country)));
