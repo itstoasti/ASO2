@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIosSearchApps } from '@/lib/ios/app-store-search';
 import { getAndroidSearchApps } from '@/lib/android/play-store-search';
-import { estimateIosPopularityFallback } from '@/lib/ios/search-ads-api';
+import { getOfficialAsaPopularity } from '@/lib/ios/search-ads-api';
 import { calculateKeywordDifficulty } from '@/lib/scoring/difficulty';
 import { generateAiAsoKeywords } from '@/lib/ai/keyword-generator';
 
@@ -35,6 +35,16 @@ export async function POST(req: NextRequest) {
     const targetBrand = appName.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)[0].trim();
     const cleanTargetTitle = appName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+    // Pre-fetch Apple search popularity in batch if platform is iOS
+    let iosAsaMap = new Map<string, { popularity: number; isOfficial: boolean }>();
+    if (platform === 'ios') {
+      try {
+        iosAsaMap = await getOfficialAsaPopularity(keywordList, null, country);
+      } catch (err) {
+        // fallback
+      }
+    }
+
     // 2. Parallel live store rank checking with STRICT non-false matching
     const checkPromises = keywordList.map(async (kw) => {
       try {
@@ -52,7 +62,8 @@ export async function POST(req: NextRequest) {
 
           if (foundIdx !== -1) {
             const rank = foundIdx + 1;
-            const searchPopularity = estimateIosPopularityFallback(kw);
+            const popData = iosAsaMap.get(kw.toLowerCase().trim());
+            const searchPopularity = popData ? popData.popularity : 30;
             const difficulty = calculateKeywordDifficulty(kw, searchRes.apps, searchRes.totalResults);
             const category: 'gem' | 'striking' | 'opportunity' = rank <= 10 ? 'gem' : rank <= 30 ? 'striking' : 'opportunity';
 
