@@ -9,10 +9,10 @@ export interface AndroidSearchResult {
 
 function calculateAndroidCompetingApps(keyword: string, appCount: number): number {
   const words = keyword.trim().split(/\s+/).length;
-  if (words === 1) return Math.min(2500, Math.max(450, appCount * 18));
-  if (words === 2) return Math.min(480, Math.max(120, appCount * 5));
-  if (words === 3) return Math.min(180, Math.max(45, appCount * 2.5));
-  return Math.min(85, Math.max(15, Math.round(appCount * 1.2)));
+  if (words === 1) return Math.round(Math.min(2500, Math.max(450, appCount * 18)));
+  if (words === 2) return Math.round(Math.min(480, Math.max(120, appCount * 5)));
+  if (words === 3) return Math.round(Math.min(180, Math.max(45, appCount * 2.5)));
+  return Math.round(Math.min(85, Math.max(15, appCount * 1.2)));
 }
 
 function decodeHtmlEntities(str: string): string {

@@ -1,28 +1,34 @@
 import { CountryCode, COUNTRIES } from '../types';
 
-// Web content words to exclude non-app web search queries
+// Web content words and gaming/template tokens to exclude non-app search queries
 const NON_APP_WEB_TERMS = new Set([
   'potion', 'powder', 'sheets', 'excel', 'pickles', 'coleslaw', 'waffles', 'meatloaf', 'banana', 'bread', 'chicken',
   'cookies', 'pie', 'jam', 'strawberries', 'potatoes', 'beef', 'turkey', 'cake',
   'soup', 'salad', 'smoothie', 'pasta', 'sauce', 'steak', 'pork', 'shrimp', 'salmon',
   'tacos', 'pizza', 'curry', 'brownies', 'muffins', 'ribs', 'chili', 'pancakes',
   'freezer', 'dip', 'sauces', 'dressing', 'casserole', 'stew', 'baking', 'roast',
-  'fried', 'grilled', 'biscuit', 'syrup', 'gravy', 'near me', 'wiki', 'pdf', 'video', 'pc'
+  'fried', 'grilled', 'biscuit', 'syrup', 'gravy', 'near me', 'wiki', 'pdf', 'video', 'pc',
+  // Gaming companion / Mod / Template tokens that contaminate generic app intent
+  'stardew', 'palia', 'notion', 'minecraft', 'roblox', 'genshin', 'valheim', 'terraria',
+  'template', 'templates', 'spreadsheet', 'spreadsheets', 'crafting', 'mod', 'mods',
+  'guide', 'addon', 'addons', 'cheat', 'cheats', 'switch', 'ps4', 'ps5', 'xbox'
 ]);
 
-function decodeHtmlEntities(str: string): string {
+function decodeAndSanitize(str: string): string {
   return str
     .replace(/&amp;/g, '&')
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    .replace(/[><\^\|\\\/]+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
 export function isAppStoreSearchKeyword(term: string): boolean {
   if (!term || typeof term !== 'string') return false;
-  const clean = term.trim().toLowerCase();
+  const clean = decodeAndSanitize(term).toLowerCase();
 
   if (clean.length < 3 || clean.length > 50) return false;
   if (/\s[a-z]$/.test(clean)) return false;
@@ -41,6 +47,12 @@ export function isAppStoreSearchKeyword(term: string): boolean {
     return false;
   }
 
+  // Reject duplicate consecutive words (e.g. "recipe recipe")
+  const words = clean.split(/\s+/);
+  for (let i = 0; i < words.length - 1; i++) {
+    if (words[i] === words[i + 1]) return false;
+  }
+
   // Exclude web informational question prefixes
   if (
     clean.startsWith('how to') ||
@@ -52,8 +64,7 @@ export function isAppStoreSearchKeyword(term: string): boolean {
     return false;
   }
 
-  // Check against web content exclusion list
-  const words = clean.split(/\s+/);
+  // Check against web & game content exclusion list
   if (words.some((w) => NON_APP_WEB_TERMS.has(w))) {
     return false;
   }
@@ -65,19 +76,23 @@ export function isAppStoreSearchKeyword(term: string): boolean {
  * Android App Store Autocomplete - High-Intent Play Store Search Intelligence
  */
 export async function getAndroidAutocomplete(keyword: string, country: CountryCode = 'us'): Promise<string[]> {
-  const seedClean = keyword.trim().toLowerCase();
+  const seedClean = decodeAndSanitize(keyword).toLowerCase();
   const suggestions = new Set<string>();
 
   if (isAppStoreSearchKeyword(seedClean)) {
     suggestions.add(seedClean);
   }
 
-  // 1. Fetch Real Live Consumer Search Queries from Live Suggestion API
+  // 1. Fetch Real Live Consumer Search Queries with app modifier context
   try {
-    const queriesToFetch = [seedClean];
-    if (!seedClean.includes('app')) {
-      queriesToFetch.push(`${seedClean} app`);
-    }
+    const queriesToFetch = [
+      `${seedClean} app`,
+      `${seedClean} android`,
+      `${seedClean} tracker`,
+      `${seedClean} planner`,
+      `${seedClean} free`,
+      seedClean,
+    ];
 
     const fetchPromises = queriesToFetch.map(async (q) => {
       const searchUrl = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(q)}`;
@@ -92,7 +107,7 @@ export async function getAndroidAutocomplete(keyword: string, country: CountryCo
         const data = await res.json();
         if (Array.isArray(data[1])) {
           data[1].forEach((term: string) => {
-            const clean = term.toLowerCase().trim();
+            const clean = decodeAndSanitize(term).toLowerCase();
             if (isAppStoreSearchKeyword(clean)) {
               suggestions.add(clean);
             }
@@ -123,7 +138,7 @@ export async function getAndroidAutocomplete(keyword: string, country: CountryCo
       const titleMatches = Array.from(html.matchAll(/class="DdV5ec"><div class="v2bFdf[^"]*">([^<]+)<\/div>/g));
 
       titleMatches.forEach((m) => {
-        const rawName = decodeHtmlEntities(m[1]).toLowerCase();
+        const rawName = decodeAndSanitize(m[1]).toLowerCase();
         const cleanName = rawName.replace(/[:\-\,\(\)\.\+\&\/]/g, ' ').replace(/\s+/g, ' ').trim();
 
         const words = cleanName.split(' ');
