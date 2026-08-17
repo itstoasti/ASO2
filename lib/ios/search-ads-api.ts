@@ -191,7 +191,12 @@ export function estimateIosPopularityFallback(keyword: string): number {
   const words = kw.split(/\s+/);
   const length = kw.length;
 
-  // Single-word Tier-1 head category terms (Mega Volume: 70 - 95)
+  // Floor immediately for duplicate consecutive words (e.g. "recipe recipe")
+  for (let i = 0; i < words.length - 1; i++) {
+    if (words[i] === words[i + 1]) return 5;
+  }
+
+  // Single-word Tier-1 head category terms (Mega Volume: 75 - 90)
   const tier1SingleHeadTerms = new Set([
     'recipes', 'recipe', 'fitness', 'workout', 'workouts', 'calorie', 'diet', 'meal', 'food', 'fasting',
     'vpn', 'music', 'game', 'games', 'casino', 'dating', 'finance', 'budget', 'money',
@@ -202,44 +207,51 @@ export function estimateIosPopularityFallback(keyword: string): number {
 
   // Exact 1-word head term match
   if (words.length === 1 && tier1SingleHeadTerms.has(kw)) {
-    return Math.min(95, 75 + (length % 12));
+    return Math.min(90, 74 + (length % 10));
   }
 
-  // High-Intent 2-word category search pairs (High Volume: 55 - 75)
+  // High-Intent 2-word category search pairs (High Volume: 50 - 68)
   const tier2HeadPairs = new Set([
     'recipe keeper', 'meal planner', 'recipe box', 'recipe app', 'calorie counter',
     'fitness tracker', 'workout planner', 'habit tracker', 'photo editor', 'budget planner',
     'pdf scanner', 'recipe organizer', 'cooking app', 'recipe book', 'fasting tracker',
     'expense tracker', 'budget app', 'workout log', 'gym workout', 'weight loss',
-    'step counter', 'sleep tracker', 'video editor', 'flight tracker', 'daily planner'
+    'step counter', 'sleep tracker', 'video editor', 'flight tracker', 'daily planner',
+    'save recipes', 'recipe saver', 'grocery list', 'meal prep', 'food tracker'
   ]);
 
   if (words.length === 2 && tier2HeadPairs.has(kw)) {
-    return Math.min(80, 58 + (kw.length % 10));
+    return Math.min(68, 52 + (kw.length % 10));
   }
 
-  // 2-word terms containing a head term (e.g. "easy recipes", "best meal planner", "dinner ideas")
+  // 2-word terms containing a head term (Moderate Volume: 28 - 42)
   if (words.length === 2) {
     const hasHead = words.some((w) => tier1SingleHeadTerms.has(w));
     if (hasHead) {
-      return 42 + (length % 12);
-    }
-    return 30 + (length % 10);
-  }
-
-  // 3-word terms
-  if (words.length === 3) {
-    const hasHead = words.some((w) => tier1SingleHeadTerms.has(w));
-    if (hasHead) {
-      return 26 + (length % 10);
+      return 32 + (length % 10);
     }
     return 18 + (length % 8);
   }
 
-  // Long-tail 4+ word terms
+  // High-Intent 3-word common app search phrases (e.g. "recipe keeper app", "free meal planner")
+  const common3WordModifiers = new Set(['app', 'free', 'pro', 'tracker', 'planner', 'organizer', 'keeper', 'saver', 'widget', 'online', 'offline']);
+  if (words.length === 3) {
+    const pairPart = words.slice(0, 2).join(' ');
+    const endModifier = words[2];
+    if (tier2HeadPairs.has(pairPart) && common3WordModifiers.has(endModifier)) {
+      return 22 + (length % 6);
+    }
+    const hasHead = words.some((w) => tier1SingleHeadTerms.has(w));
+    if (hasHead) {
+      return 12 + (length % 5);
+    }
+    return 5;
+  }
+
+  // Long-tail 4+ word terms (Apple minimum baseline floor: 5 - 8)
   const hasHead = words.some((w) => tier1SingleHeadTerms.has(w));
   if (hasHead) {
-    return Math.max(8, 16 - words.length * 2);
+    return Math.max(5, 10 - words.length);
   }
-  return Math.max(5, 12 - words.length * 2);
+  return 5;
 }

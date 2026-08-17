@@ -33,8 +33,15 @@ export function calculateRelevance(seed: string, keyword: string): { score: numb
     return { score: 100, label: 'High' };
   }
 
-  const seedWords = s.split(/\s+/).filter(Boolean);
+  // Check for duplicate consecutive words (e.g. "recipe recipe")
   const kwWords = k.split(/\s+/).filter(Boolean);
+  for (let i = 0; i < kwWords.length - 1; i++) {
+    if (kwWords[i] === kwWords[i + 1]) {
+      return { score: 25, label: 'Low' };
+    }
+  }
+
+  const seedWords = s.split(/\s+/).filter(Boolean);
 
   const sharedWords = seedWords.filter((w) => kwWords.includes(w));
   const overlapRatio = sharedWords.length / Math.max(1, seedWords.length);

@@ -20,9 +20,20 @@ function isValidAppStoreKeyword(term: string): boolean {
     return false;
   }
 
+  // Reject single dangling letters at the end
   if (/\s[a-z]$/.test(clean)) {
     return false;
   }
+
+  // Reject duplicate consecutive words (e.g. "recipe recipe saver")
+  const words = clean.split(/\s+/);
+  for (let i = 0; i < words.length - 1; i++) {
+    if (words[i] === words[i + 1]) return false;
+  }
+
+  // Reject synthetic single-character or overly long strings
+  if (clean.length < 3 || clean.length > 45) return false;
+  if (words.length > 5) return false;
 
   const systemWords = new Set([
     'suggestions', 'suggestion', 'hints', 'hint', 'url', 'string', 'plist',
@@ -30,8 +41,8 @@ function isValidAppStoreKeyword(term: string): boolean {
   ]);
 
   if (systemWords.has(clean)) return false;
-  if (clean.length < 2 || clean.length > 50) return false;
 
+  // Reject web question queries
   if (
     clean.startsWith('how to') ||
     clean.startsWith('what is') ||
@@ -44,6 +55,9 @@ function isValidAppStoreKeyword(term: string): boolean {
   return /^[a-z0-9\s\-\.\'\"]+$/.test(clean);
 }
 
+/**
+ * Direct query to Apple's official MZSearchHints App Store autocomplete API
+ */
 async function fetchAppleNativeHints(queryTerm: string, store: string): Promise<string[]> {
   const query = encodeURIComponent(queryTerm.trim());
   const hints: string[] = [];
@@ -87,47 +101,19 @@ async function fetchAppleNativeHints(queryTerm: string, store: string): Promise<
   return hints;
 }
 
-async function fetchIosAppTitleTerms(keyword: string, store: string): Promise<string[]> {
-  const terms: string[] = [];
-  try {
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(keyword)}&country=${store}&entity=software&limit=50`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      (data.results || []).forEach((item: any) => {
-        const name = (item.trackName || '').toLowerCase();
-        const cleanName = name.replace(/[:\-\,\(\)\.\+]/g, ' ').replace(/\s+/g, ' ').trim();
-        if (cleanName.includes(keyword.toLowerCase())) {
-          const words = cleanName.split(' ');
-          for (let i = 0; i < words.length - 1; i++) {
-            const phrase = words.slice(i, i + 4).join(' ');
-            if (phrase.includes(keyword.toLowerCase()) && phrase.length <= 40) {
-              if (isValidAppStoreKeyword(phrase)) {
-                terms.push(phrase);
-              }
-            }
-          }
-        }
-      });
-    }
-  } catch (e) {}
-  return terms;
-}
-
 /**
  * Main iOS Autocomplete Fetcher - 100% Official Apple App Store Data Engine
  */
 export async function getIosAutocomplete(keyword: string, country: CountryCode = 'us'): Promise<string[]> {
   const store = COUNTRIES.find((c) => c.code === country)?.storeCode || 'US';
   const seedClean = keyword.trim().toLowerCase();
-  const seedWords = seedClean.split(/\s+/);
   const suggestions = new Set<string>();
 
   if (isValidAppStoreKeyword(seedClean)) {
     suggestions.add(seedClean);
   }
 
-  // 1. Streamlined High-Yield Subqueries to Apple MZSearchHints API
+  // 1. High-Yield Subqueries to Apple MZSearchHints API
   const subQueries = [
     seedClean,
     `${seedClean} app`,
@@ -135,6 +121,9 @@ export async function getIosAutocomplete(keyword: string, country: CountryCode =
     `${seedClean} pro`,
     `best ${seedClean}`,
     `${seedClean} tracker`,
+    `${seedClean} planner`,
+    `${seedClean} organizer`,
+    `${seedClean} keeper`,
   ];
 
   try {
@@ -150,31 +139,5 @@ export async function getIosAutocomplete(keyword: string, country: CountryCode =
     });
   } catch (err) {}
 
-  // 2. Extract Title & Subtitle Keywords directly from top ranking iOS apps
-  try {
-    const titleTerms = await fetchIosAppTitleTerms(seedClean, store);
-    titleTerms.forEach((t) => {
-      if (isValidAppStoreKeyword(t)) {
-        suggestions.add(t);
-      }
-    });
-  } catch (err) {}
-
-  // 3. Guaranteed High-Converting ASO Long-Tail Suffix Pool
-  const longTailSuffixes = [
-    'app', 'free', 'pro', 'widget', 'tracker', 'planner', 'log',
-    'for women', 'for seniors', 'apple watch', 'step counter', 'manager',
-    'easy log', 'daily tracker 2026', 'minimalist', 'custom widget',
-    'without subscription', 'diary', 'counter', 'plus', 'studio'
-  ];
-
-  for (const suf of longTailSuffixes) {
-    if (suggestions.size >= 35) break;
-    const variation = `${seedClean} ${suf}`;
-    if (isValidAppStoreKeyword(variation)) {
-      suggestions.add(variation);
-    }
-  }
-
-  return Array.from(suggestions).filter(isValidAppStoreKeyword);
+  return Array.from(suggestions).slice(0, 25);
 }
